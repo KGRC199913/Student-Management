@@ -27,7 +27,7 @@ User::User(string name, string phone, char type) {
 	this->mphone = phone;
 	this->username = createUsername(name);
 	this->email = this->username;
-	this->email.append("@hcmus.edu.vn");
+	this->email.append("@fit.hcmus.edu.vn");
 }
 
 string User::createUsername(string name) {

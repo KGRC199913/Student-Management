@@ -36,17 +36,25 @@ void login(User* user) {
 		}
 	}
 	
-
-	cout << "Password: ";
-	getline(cin, buffer, '\n');
-	
-	while (buffer != password) {
-		system("cls");
-		cout << "Wrong password!!" << endl;
-		cout << "Username: " << username << endl;
+	//Password
+	if (password == "000") {
+		cout << "This is your first login, please change your password" << endl;
+		resetPassword(user);
+	}
+	else {
 		cout << "Password: ";
 		getline(cin, buffer, '\n');
+		string hash_buffer = sha256(buffer);
+		while (hash_buffer != password) {
+			system("cls");
+			cout << "Wrong password!!" << endl;
+			cout << "Username: " << username << endl;
+			cout << "Password: ";
+			getline(cin, buffer, '\n');
+			hash_buffer = sha256(buffer);
+		}
 	}
+	//end of password
 
 	//unfinished
 	//read from data file to get name, phone & class/type (depend)
