@@ -27,13 +27,13 @@ User::User(string name, string phone, char type) {
 	this->mphone = phone;
 	this->username = createUsername(name);
 	this->email = this->username;
-	this->email.append("@hcmus.edu.vn");
+	this->email.append("@fit.hcmus.edu.vn");
 }
 
 string User::createUsername(string name) {
 	string result;
 	result += static_cast<char> (tolower(name[0]));
-	int len = name.length();
+	unsigned int len = name.length();
 	for (int i = 1; i < len; ++i) {
 		if (name[i - 1] == ' ') {
 			result += static_cast<char> (tolower(name[i]));
@@ -68,6 +68,22 @@ string User::getUsername() {
 	return this->username;
 }
 
+string User::getEmail() {
+	return this->email;
+}
+
+string User::getMobilePhone() {
+	return this->mphone;
+}
+
+string User::getFullName() {
+	return this->full_name;
+}
+
+string User::getClass() {
+	return this->Class;
+}
+
 bool User::checkLegitPassword(string newPass_same) {
 	bool haveUpper = false, haveLower = false, haveNum = false, samePass = false;
 	int len = this->password.length();
@@ -90,9 +106,22 @@ bool User::checkLegitPassword(string newPass_same) {
 		return legit;
 	}
 }
+
+
 void User::setPassword(string newPass) {
 	this->password = newPass;
 }
+void User::setName(string newName) {
+	this->full_name = newName;
+}
+void User::setPhone(string newPhone) {
+	this->mphone = newPhone;
+}
+void User::setClass(string newClass) {
+	this->Class = newClass;
+}
+
+
 string User::getPassword() {
 	return this->password;
 }

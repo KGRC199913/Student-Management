@@ -17,10 +17,21 @@ public:
 	User(string name, string phone, char type);
 	User();
 	int printinfo();
-	string getUsername();
+	
 	bool checkLegitPassword(string newPass_same);
+	
+	void setName(string newName);
+	void setPhone(string newPhone);
+	void setClass(string newClass);
 	void setPassword(string newPass);
+	
+
+	string getUsername();
+	string getFullName();
+	string getEmail();
+	string getMobilePhone();
 	string getPassword();
+	string getClass();
 	~User();
 };
 

@@ -36,33 +36,64 @@ void login(User* user) {
 		}
 	}
 	
-
-	cout << "Password: ";
-	getline(cin, buffer, '\n');
-	
-	while (buffer != password) {
-		system("cls");
-		cout << "Wrong password!!" << endl;
-		cout << "Username: " << username << endl;
+	//Password
+	if (password == sha256("000")) {
+		cout << "This is your first login, please change your password" << endl;
+		resetPassword(user);
+	}
+	else {
 		cout << "Password: ";
 		getline(cin, buffer, '\n');
+		string hash_buffer = sha256(buffer);
+		while (hash_buffer != password) {
+			system("cls");
+			cout << "Wrong password!!" << endl;
+			cout << "Username: " << username << endl;
+			cout << "Password: ";
+			getline(cin, buffer, '\n');
+			hash_buffer = sha256(buffer);
+		}
 	}
-
+	
+	//end of password
+	loginDat.close();
 	//unfinished
 	//read from data file to get name, phone & class/type (depend)
 	//temporary login set
+
 	if (isdigit(username[0])) {
-		User temp(username, "Pham Hoang Anh Tuan", "000000000000", "17CLC3");
-		*user = temp;
+		ifstream info;
+		info.open(infofile, ios::in);
+		infofile.pop_back();
+		infofile.pop_back();
+		infofile.pop_back();
+		infofile.pop_back();
+		string fname, email, mobilePhone;
+		getline(info, buffer, '\n');
+		getline(info, buffer, '\n');
+		while (!info.eof()) {
+			getline(info, buffer, ',');
+			getline(info, buffer, ',');
+			if (buffer == username) {
+				getline(info, fname, ',');
+				getline(info, email, ',');
+				getline(info, mobilePhone, '\n');
+				User temp(username, fname, mobilePhone, infofile);
+				*user = temp;
+				user->setPassword(password);
+			}
+		}
 	}
 	else {
-		User temp("Ho Tuan Thanh", "????????????", 2);
-		*user = temp;
+
 	}
+	
+
+
 
 	//
 
-	loginDat.close();
+	
 }
 
 
@@ -84,4 +115,9 @@ void resetPassword(User* user) {
 		user->setPassword(pass);
 	}
 	cout << "Password was changed successfully" << endl;
+}
+
+bool fexist(const std::string& name) {
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
 }
