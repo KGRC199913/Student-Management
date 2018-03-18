@@ -12,9 +12,9 @@
 using namespace std;
 
 int main() {
-	/*User current_login;
-	login(&current_login);
-	current_login.printinfo();*/
 	//resetPassword(&current_login);
+	vector<User> test;
+	import_students("17CLC3.csv", test);
+	change_class(test);
 	return 0;
 }
