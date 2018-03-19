@@ -12,9 +12,10 @@
 using namespace std;
 
 int main() {
-	//resetPassword(&current_login);
-	vector<User> test;
-	import_students("17CLC3.csv", test);
-	change_class(test);
+	vector<Course> test;
+	import_course("Course.csv", test);
+	add_new_course(test);
+	print_course_list_to_file("Course.test.csv", test);
+	system("pause");
 	return 0;
 }

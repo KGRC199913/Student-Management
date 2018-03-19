@@ -158,21 +158,22 @@ void change_class(vector<User>& list) {
 		cerr << "Cant not find student with ID " << buffer << endl;
 		return;
 	}
+
 	User temp = list[pos];
-	
+	string newClass;
 	cout << "Input new class: ";
-	getline(cin, buffer, '\n');
-	if (!fexist(buffer + ".csv")) {
+	getline(cin, newClass, '\n');
+	if (!fexist(newClass + ".csv")) {
 		cerr << "Class not found" << endl;
 		return;
 	}
 
-	ifstream desfile(buffer + ".csv");
+	ifstream desfile(newClass + ".csv");
 	int line = count(istreambuf_iterator<char>(desfile), istreambuf_iterator<char>(), '\n') - 2;
 	desfile.close();
 
 	ofstream fo;
-	fo.open(buffer + ".csv", ios::app | ios::ate);
+	fo.open(newClass + ".csv", ios::app | ios::ate);
 	
 	string tempString = to_string(line + 1);
 	if (tempString.size() < 2) fo << "0" << tempString << ",";
@@ -181,4 +182,213 @@ void change_class(vector<User>& list) {
 
 	fo.close();
 	remove_student(list, pos);
+	
+	//change loginDat
+	ifstream loginDat("loginDat.csv", ios::in);
+	ofstream newLoginDat("loginDat.csv.temp", ios::out);
+	buffer.clear();
+
+	getline(loginDat, buffer, '\n');
+	newLoginDat << buffer << endl;
+	getline(loginDat, buffer, '\n');
+	newLoginDat << buffer << endl;
+
+while (!loginDat.eof()) {
+	getline(loginDat, buffer, ',');
+	if (buffer == temp.getUsername()) {
+		newLoginDat << buffer << ",";
+		getline(loginDat, buffer, ',');
+		newLoginDat << buffer << ",";
+		newLoginDat << newClass + ".csv" << endl;
+		getline(loginDat, buffer, '\n');
+		buffer.clear();
+	}
+	else {
+		if (buffer.length() > 2) {
+			newLoginDat << buffer << ",";
+			getline(loginDat, buffer, '\n');
+			newLoginDat << buffer << endl;
+		}
+	}
+}
+
+loginDat.close();
+newLoginDat.close();
+remove("loginDat.csv");
+rename("loginDat.csv.temp", "loginDat.csv");
+}
+
+void add_new_class(string className) {
+	if (fexist(className + ".csv")) {
+		cerr << "Class " << className << " is already existed" << endl;
+		return;
+	}
+
+	ofstream fo;
+	fo.open(className + ".csv", ios::out);
+	fo << "Class," << className << "," << endl;
+	fo << "No,ID,Full Name,Email,Mobile Phone" << endl;
+	fo.close();
+}
+
+void import_course(string path, vector<Course>& list) {
+	ifstream fi(path, ios::in);
+	string buffer;
+	getline(fi, buffer, '\n');
+	getline(fi, buffer, '\n');
+	buffer.clear();
+
+	date date_temp;
+	time time_temp;
+	Course course_temp;
+	while (!fi.eof()) {
+		getline(fi, buffer, ',');
+		course_temp.setCourseCode(buffer);
+		getline(fi, buffer, ',');
+		course_temp.setName(buffer);
+		getline(fi, buffer, ',');
+		course_temp.setLecUsername(buffer);
+		getline(fi, buffer, ',');
+		course_temp.setYear(buffer);
+		getline(fi, buffer, ',');
+		course_temp.setSemester(stoi(buffer));
+
+		getline(fi, buffer, '/');
+		date_temp.day = stoi(buffer);
+		getline(fi, buffer, '/');
+		date_temp.month = stoi(buffer);
+		getline(fi, buffer, ',');
+		date_temp.year = stoi(buffer);
+		course_temp.setStartDate(date_temp);
+
+		getline(fi, buffer, '/');
+		date_temp.day = stoi(buffer);
+		getline(fi, buffer, '/');
+		date_temp.month = stoi(buffer);
+		getline(fi, buffer, ',');
+		date_temp.year = stoi(buffer);
+		course_temp.setEndDate(date_temp);
+
+		getline(fi, buffer, 'h');
+		time_temp.hour = stoi(buffer);
+		getline(fi, buffer, ',');
+		time_temp.minute = stoi(buffer);
+		course_temp.setStartTime(time_temp);
+
+		getline(fi, buffer, 'h');
+		time_temp.hour = stoi(buffer);
+		getline(fi, buffer, ',');
+		time_temp.minute = stoi(buffer);
+		course_temp.setEndTime(time_temp);
+
+		getline(fi, buffer, '\n');
+		course_temp.setDoW(stoi(buffer));
+
+		list.push_back(course_temp);
+	}
+
+	fi.close();
+}
+
+void print_course_list_to_file(string path, vector<Course>& list) {
+	ofstream fo(path, ios::out);
+
+	fo << "CourseDat,\nCourse Code, Name, Lecturer Username, Year, Semester, Start date, End date, Start time, End time, Date of Week\n";
+
+	for (int i = 0; i < list.size(); ++i) {
+		fo << list[i].getCourseCode() << "," << list[i].getName() << "," << list[i].getLecUsername() << "," << list[i].getYear() << "," << list[i].getSemester() << "," << list[i].getStartDate().day << "/" << list[i].getStartDate().month << "/" 
+			<< list[i].getStartDate().year << "," << list[i].getEndDate().day << "/" << list[i].getEndDate().month << "/" << list[i].getEndDate().year << ","
+			<< list[i].getStartTime().hour << "h" << list[i].getStartTime().minute << "," << list[i].getEndTime().hour << "h" << list[i].getEndTime().minute << "," << list[i].getDoW() << endl;
+	}
+	
+	fo.close();
+}
+
+void add_new_course(vector<Course>& list) {
+	string buffer;
+	Course temp;
+	cout << "Course Code: ";
+	getline(cin, buffer, '\n');
+	for (int i = 0; i < list.size(); ++i) {
+		if (buffer == list[i].getCourseCode()) {
+			cerr << "This Course is already existed" << endl;
+			return;
+		}
+	}
+
+	temp.setCourseCode(buffer);
+
+	cout << "Name of the course: ";
+	getline(cin, buffer, '\n');
+	temp.setName(buffer);
+
+	cout << "Lecturer's Username: ";
+	getline(cin, buffer, '\n');
+	temp.setLecUsername(buffer);
+
+	cout << "Course year: ";
+	getline(cin, buffer, '\n');
+	temp.setYear(buffer);
+
+	cout << "Semester: ";
+	getline(cin, buffer, '\n');
+	temp.setSemester(stoi(buffer));
+
+	date date_temp;
+	cout << "Start Date (format dd/mm/yyyy): ";
+	getline(cin, buffer, '/');
+	date_temp.day = stoi(buffer);
+	getline(cin, buffer, '/');
+	date_temp.month = stoi(buffer);
+	getline(cin, buffer, '\n');
+	date_temp.year = stoi(buffer);
+	temp.setStartDate(date_temp);
+
+	cout << "End Date (format dd/mm/yyyy): ";
+	getline(cin, buffer, '/');
+	date_temp.day = stoi(buffer);
+	getline(cin, buffer, '/');
+	date_temp.month = stoi(buffer);
+	getline(cin, buffer, '\n');
+	date_temp.year = stoi(buffer);
+	temp.setEndDate(date_temp);
+
+	time time_temp;
+	cout << "Course Start Time (format hh:mm): ";
+	getline(cin, buffer, ':');
+	time_temp.hour = stoi(buffer);
+	getline(cin, buffer, '\n');
+	time_temp.minute = stoi(buffer);
+	temp.setStartTime(time_temp);
+
+	cout << "Course End Time (format hh:mm): ";
+	getline(cin, buffer, ':');
+	time_temp.hour = stoi(buffer);
+	getline(cin, buffer, '\n');
+	time_temp.minute = stoi(buffer);
+	temp.setEndTime(time_temp);
+
+	cout << "Course DoW: ";
+	getline(cin, buffer, '\n');
+	temp.setDoW(stoi(buffer));
+
+	list.push_back(temp);
+}
+
+void remove_course(vector<Course>& list) {
+	cout << "Input Course ID to remove: ";
+	string buffer;
+	getline(cin, buffer, '\n');
+
+	bool remove_flag = false;
+	for (int i = 0; i < list.size(); ++i) {
+		if (list[i].getCourseCode == buffer) {
+			list.erase(list.begin() + i);
+			remove_flag = true;
+			break;
+		}
+	}
+	if (!remove_flag) {
+		cerr << "This Course is not existed" << endl;
+	}
 }
