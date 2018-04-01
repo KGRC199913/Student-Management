@@ -382,7 +382,7 @@ void remove_course(vector<Course>& list) {
 
 	bool remove_flag = false;
 	for (int i = 0; i < list.size(); ++i) {
-		if (list[i].getCourseCode == buffer) {
+		if (list[i].getCourseCode() == buffer) {
 			list.erase(list.begin() + i);
 			remove_flag = true;
 			break;
@@ -390,5 +390,131 @@ void remove_course(vector<Course>& list) {
 	}
 	if (!remove_flag) {
 		cerr << "This Course is not existed" << endl;
+	}
+}
+
+vector<string> read_directory() {
+	vector<string> list;
+	string search_path = ".\\Classes\\*.*";
+	WIN32_FIND_DATA fd;
+	string temp;
+	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				temp = fd.cFileName;
+				temp.pop_back();
+				temp.pop_back();
+				temp.pop_back();
+				temp.pop_back();
+				list.push_back(temp);
+			}
+		} while (::FindNextFile(hFind, &fd));
+		::FindClose(hFind);
+	}
+	return list;
+}
+
+//check if c2 is collided with c1
+bool isCollied(Course &c1, Course &c2) {
+	if (c1.getLecUsername() == c2.getLecUsername()) {
+		if (c1.getDoW() == c2.getDoW()) {
+			if (collidedDate(c1.getStartDate(), c2.getStartDate(), c1.getEndDate(), c2.getEndDate())) {
+				if (collidedTime(c1.getStartTime(), c2.getStartTime(), c1.getEndTime(), c2.getEndTime())) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void import_scoreboard(string course, Scoreboard &list) {
+	ifstream fi(".\\Scores\\" + course + ".csv");
+	if (!fi) {
+		cerr << "Course Scoreboard not exit" << endl;
+		return;
+	}
+	string buffer;
+	
+	list.Course_code = course;
+	getline(fi, buffer, ',');
+	list.semester = stoi(buffer);
+	getline(fi, buffer, ',');
+	list.year = stoi(buffer);
+	getline(fi, buffer, '\n');
+	buffer.clear();
+	list.data.clear();
+	
+	string ID;
+	getline(fi, buffer, '\n');
+	buffer.clear();
+	score_list temp;
+	while (!fi.eof()) {
+		getline(fi, ID, ',');
+		if (ID == "") break;
+		getline(fi, buffer, ',');
+		temp.midterm = stod(buffer);
+		getline(fi, buffer, ',');
+		temp.lab = stod(buffer);
+		getline(fi, buffer, '\n');
+		temp.final = stod(buffer);
+		Score score(ID, temp);
+		list.data.push_back(score);
+	}
+	fi.close();
+}
+
+void export_scoreboard(Scoreboard &list) {
+	ofstream fo(".\\Scores\\" + list.Course_code + ".csv");
+	if (!fo) {
+		cerr << "cant write to/create course's score file" << endl;
+		return;
+	}
+	fo << list.semester << " " << list.year << ",," << endl << "ID,Midterm,Lab,Final" << endl;
+	for (auto it = list.data.begin(); it != list.data.end(); ++it) {
+		fo << it->ID << "," << it->score.midterm << "," << it->score.lab << "," << it->score.final << endl;
+	}
+	fo.close();
+}
+
+void import_attendance(string course, Attendance &list) {
+	ifstream fi(".\\Attendance\\" + course + ".csv");
+	if (!fi) {
+		cerr << "Course not found" << endl;
+		return;
+	}
+	string buffer, name, ID;
+	list.Course_code = course;
+	bool data[10];
+	getline(fi, buffer, '\n');
+	while (!fi.eof()) {
+		getline(fi, ID, ',');
+		getline(fi, name, ',');
+		for (int i = 0; i < 10; ++i) {
+			if (i == 9) getline(fi, buffer, '\n');
+			else getline(fi, buffer, ',');
+			data[i] = buffer == "V" ? true : false;
+		}
+		Presence temp(ID, name, data);
+		list.attendance_list.push_back(temp);
+	}
+	list.attendance_list.pop_back();
+}
+
+void export_attendance(Attendance &list) {
+	ofstream fo(".\\Attendance\\" + list.Course_code + ".csv");
+	if (!fo) {
+		cerr << "Error loading file" << endl;
+		return;
+	}
+	fo << "ID,Name,1,2,3,4,5,6,7,8,9,10" << endl;
+	for (auto&& i : list.attendance_list) {
+		fo << i.ID << "," << i.name << ",";
+		for (int j = 0; j < 10; ++j) {
+			char out = i.check_in[j] ? 'V' : 'A';
+			if (j == 9) fo << out << endl;
+			else fo << out << ",";
+		}
 	}
 }

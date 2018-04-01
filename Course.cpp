@@ -104,3 +104,33 @@ time Course::getEndTime() {
 int Course::getDoW() {
 	return this->dow;
 }
+
+bool collidedDate(date sd1, date sd2, date ed1, date ed2) {
+	if (((sd2.year <= ed1.year) && (sd2.year >= sd1.year)) ||
+		((ed2.year <= ed1.year) && (ed2.year >= sd1.year)) ||
+		((sd2.year < sd1.year) && (ed2.year > ed1.year))) {
+		if (((sd2.month <= ed1.month) && (sd2.month >= sd1.month)) ||
+			((ed2.month <= ed1.month) && (ed2.month >= sd1.month)) ||
+			((sd2.month < sd1.month) && (ed2.month > ed1.month))) {
+			if (((sd2.day <= ed1.day) && (sd2.day >= sd1.day)) ||
+				((ed2.day <= ed1.day) && (ed2.day >= sd1.day)) ||
+				((sd2.day < sd1.day) && (ed2.day > ed1.day))) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool collidedTime(time st1, time st2, time et1, time et2) {
+	if (((st2.hour <= et1.hour) && (st2.hour >= st1.hour)) ||
+		((et2.hour <= et1.hour) && (et2.hour >= st1.hour)) ||
+		((st2.hour < st1.hour) && (et2.hour > et1.hour))) {
+		if (((st2.minute <= et1.minute) && (st2.minute >= st1.minute)) ||
+			((et2.minute <= et1.minute) && (et2.minute >= st1.minute)) ||
+			((st2.minute < st1.minute) && (et2.minute > et1.minute))) {
+			return true;
+		}
+	}
+	return false;
+}

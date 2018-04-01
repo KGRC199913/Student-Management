@@ -6,16 +6,16 @@
 #include "Course.h"
 #include "Presence.h"
 #include "Score.h"
+#include "Presence.h"
 #include "GeneralFeatures.h"
 #include "Academic_staff_features.h"
 
 using namespace std;
 
 int main() {
-	vector<Course> test;
-	import_course("Course.csv", test);
-	add_new_course(test);
-	print_course_list_to_file("Course.test.csv", test);
-	system("pause");
+	Attendance temp;
+	import_attendance("CTT008 (3)", temp);
+	temp.Course_code = "test";
+	export_attendance(temp);
 	return 0;
 }

@@ -2,22 +2,15 @@
 #include <iostream>
 
 
-Presence::Presence(string code, int year, int semester, string ID, int week)
-{
-	this->Course_code = code;
-	this->year = year;
-	this->semester = semester;
+Presence::Presence() {
+	for (auto&& i : this->check_in) {
+		i = false;
+	}
+}
+Presence::Presence(string ID, string name, bool check_in[10]) {
 	this->ID = ID;
-	this->week = week;
-}
-
-
-Presence::~Presence()
-{
-	this->Course_code.clear();
-	this->ID.clear();
-}
-
-void Presence::print_check_in_info() {
-	cout << "Course code: " << this->Course_code << endl << "Year: " << this->year << endl << "Semester: " << this->semester << endl << "ID: " << this->ID << endl << "Presence week: " << this->week << endl;
+	this->name = name;
+	for (int i = 0; i < 10; ++i) {
+		this->check_in[i] = check_in[i];
+	}
 }
