@@ -6,15 +6,19 @@
 #include "Course.h"
 #include "Presence.h"
 #include "Score.h"
+#include "Presence.h"
 #include "GeneralFeatures.h"
 #include "Academic_staff_features.h"
-
+#include "menu.h"
 using namespace std;
 
-int main() {
-	//resetPassword(&current_login);
-	vector<User> test;
-	import_students("17CLC3.csv", test);
-	change_class(test);
+int main() 
+{
+	system("color 30");
+	Attendance temp;
+	import_attendance("CTT008(3)", temp);
+	temp.Course_code = "test";
+	export_attendance(temp);
+	menu(5);
 	return 0;
 }
