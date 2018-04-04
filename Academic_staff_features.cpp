@@ -1,6 +1,7 @@
 #include "Academic_staff_features.h"
 #include "GeneralFeatures.h"
-
+#include "Console.h"
+#include "menu.h"
 void import_students(string path, vector<User> &list) {
 	ifstream listFile;
 	listFile.open(path, ios::in);
@@ -67,7 +68,7 @@ void add_new_student(vector<User>& list) {
 
 	User temp(ID, fname, phone, Class);
 	list.push_back(temp);
-	
+
 	append_new_student_info(temp, list);
 }
 
@@ -115,7 +116,7 @@ void print_list_of_class() {
 	string buffer;
 	getline(classList, buffer, '\n');
 	buffer.clear();
-	while (!classList.eof()){
+	while (!classList.eof()) {
 		getline(classList, buffer, '\n');
 		cout << buffer << endl;
 	}
@@ -158,22 +159,23 @@ void change_class(vector<User>& list) {
 		cerr << "Cant not find student with ID " << buffer << endl;
 		return;
 	}
+
 	User temp = list[pos];
-	
+	string newClass;
 	cout << "Input new class: ";
-	getline(cin, buffer, '\n');
-	if (!fexist(buffer + ".csv")) {
+	getline(cin, newClass, '\n');
+	if (!fexist(newClass + ".csv")) {
 		cerr << "Class not found" << endl;
 		return;
 	}
 
-	ifstream desfile(buffer + ".csv");
+	ifstream desfile(newClass + ".csv");
 	int line = count(istreambuf_iterator<char>(desfile), istreambuf_iterator<char>(), '\n') - 2;
 	desfile.close();
 
 	ofstream fo;
-	fo.open(buffer + ".csv", ios::app | ios::ate);
-	
+	fo.open(newClass + ".csv", ios::app | ios::ate);
+
 	string tempString = to_string(line + 1);
 	if (tempString.size() < 2) fo << "0" << tempString << ",";
 	else fo << tempString << ",";
@@ -181,4 +183,382 @@ void change_class(vector<User>& list) {
 
 	fo.close();
 	remove_student(list, pos);
+
+	//change loginDat
+	ifstream loginDat("loginDat.csv", ios::in);
+	ofstream newLoginDat("loginDat.csv.temp", ios::out);
+	buffer.clear();
+
+	getline(loginDat, buffer, '\n');
+	newLoginDat << buffer << endl;
+	getline(loginDat, buffer, '\n');
+	newLoginDat << buffer << endl;
+
+	while (!loginDat.eof()) {
+		getline(loginDat, buffer, ',');
+		if (buffer == temp.getUsername()) {
+			newLoginDat << buffer << ",";
+			getline(loginDat, buffer, ',');
+			newLoginDat << buffer << ",";
+			newLoginDat << newClass + ".csv" << endl;
+			getline(loginDat, buffer, '\n');
+			buffer.clear();
+		}
+		else {
+			if (buffer.length() > 2) {
+				newLoginDat << buffer << ",";
+				getline(loginDat, buffer, '\n');
+				newLoginDat << buffer << endl;
+			}
+		}
+	}
+
+	loginDat.close();
+	newLoginDat.close();
+	remove("loginDat.csv");
+	rename("loginDat.csv.temp", "loginDat.csv");
+}
+
+void add_new_class(string className) {
+	if (fexist(className + ".csv")) {
+		cerr << "Class " << className << " is already existed" << endl;
+		return;
+	}
+
+	ofstream fo;
+	fo.open(className + ".csv", ios::out);
+	fo << "Class," << className << "," << endl;
+	fo << "No,ID,Full Name,Email,Mobile Phone" << endl;
+	fo.close();
+}
+
+void import_course(string path, vector<Course>& list) {
+	ifstream fi(path, ios::in);
+	string buffer;
+	system("cls");
+	frame();
+	addcourseframe(20, 3, 60, 17, 4, 4, 4);
+	gotoXY(22, 5);
+	getline(fi, buffer, '\n');
+	gotoXY(22, 7);
+	getline(fi, buffer, '\n');
+	buffer.clear();
+
+	date date_temp;
+	time time_temp;
+	Course course_temp;
+	while (!fi.eof()) {
+		gotoXY(22, 9);
+		getline(fi, buffer, ',');
+		course_temp.setCourseCode(buffer);
+		getline(fi, buffer, ',');
+		course_temp.setName(buffer);
+		getline(fi, buffer, ',');
+		course_temp.setLecUsername(buffer);
+		getline(fi, buffer, ',');
+		course_temp.setYear(buffer);
+		getline(fi, buffer, ',');
+		course_temp.setSemester(stoi(buffer));
+		gotoXY(22, 11);
+		getline(fi, buffer, '/');
+		date_temp.day = stoi(buffer);
+		getline(fi, buffer, '/');
+		date_temp.month = stoi(buffer);
+		getline(fi, buffer, ',');
+		date_temp.year = stoi(buffer);
+		course_temp.setStartDate(date_temp);
+		
+		gotoXY(22, 13);
+		getline(fi, buffer, '/');
+		date_temp.day = stoi(buffer);
+		getline(fi, buffer, '/');
+		date_temp.month = stoi(buffer);
+		getline(fi, buffer, ',');
+		date_temp.year = stoi(buffer);
+		course_temp.setEndDate(date_temp);
+
+		gotoXY(22, 15);
+		getline(fi, buffer, 'h');
+		time_temp.hour = stoi(buffer);
+		getline(fi, buffer, ',');
+		time_temp.minute = stoi(buffer);
+		course_temp.setStartTime(time_temp);
+
+		gotoXY(22, 17);
+		getline(fi, buffer, 'h');
+		time_temp.hour = stoi(buffer);
+		getline(fi, buffer, ',');
+		time_temp.minute = stoi(buffer);
+		course_temp.setEndTime(time_temp);
+
+		gotoXY(22, 19);
+		getline(fi, buffer, '\n');
+		course_temp.setDoW(stoi(buffer));
+
+		list.push_back(course_temp);
+	}
+
+	fi.close();
+}
+
+void print_course_list_to_file(string path, vector<Course>& list) {
+	ofstream fo(path, ios::out);
+
+	fo << "CourseDat,\nCourse Code, Name, Lecturer Username, Year, Semester, Start date, End date, Start time, End time, Date of Week\n";
+
+	for (int i = 0; i < list.size(); ++i) {
+		fo << list[i].getCourseCode() << "," << list[i].getName() << "," << list[i].getLecUsername() << "," << list[i].getYear() << "," << list[i].getSemester() << "," << list[i].getStartDate().day << "/" << list[i].getStartDate().month << "/"
+			<< list[i].getStartDate().year << "," << list[i].getEndDate().day << "/" << list[i].getEndDate().month << "/" << list[i].getEndDate().year << ","
+			<< list[i].getStartTime().hour << "h" << list[i].getStartTime().minute << "," << list[i].getEndTime().hour << "h" << list[i].getEndTime().minute << "," << list[i].getDoW() << endl;
+	}
+
+	fo.close();
+}
+
+void add_new_course(vector<Course>& list) {
+	system("cls");
+	gotoXY(45, 0);
+	for (int i = 0; i < 20; i++)
+	{
+		TextColor(55);
+		printf("%c", 205);
+	}
+	TextColor(48);
+	gotoXY(48, 1);
+	cout << "Add new course" << endl;
+	gotoXY(45, 2);
+	for (int i = 0; i < 20; i++)
+	{
+		TextColor(55);
+		printf("%c", 205);
+	}
+	string buffer;
+	Course temp;
+	addcourseframe(20,3,60,21,4,4,4);
+	gotoXY(22, 5);
+	cout << "Course Code";
+	gotoXY(57, 5);
+	getline(cin, buffer, '\n');
+	for (int i = 0; i < list.size(); ++i) {
+		if (buffer == list[i].getCourseCode()) {
+			system("cls");
+			gotoXY(22,4 );
+			cerr << "This Course is already existed" << endl;
+			return;
+		}
+	}
+
+	temp.setCourseCode(buffer);
+	gotoXY(22, 7);
+	cout << "Name of the course";
+	gotoXY(57, 7);
+	getline(cin, buffer, '\n');
+	temp.setName(buffer);
+	gotoXY(22, 9);
+	cout << "Lecturer's Username";
+	gotoXY(57, 9);
+	getline(cin, buffer, '\n');
+	temp.setLecUsername(buffer);
+	gotoXY(22, 11);
+	cout << "Course year";
+	gotoXY(57, 11);
+	getline(cin, buffer, '\n');
+	temp.setYear(buffer);
+	gotoXY(22, 13);
+	cout << "Semester";
+	gotoXY(57, 13);
+	getline(cin, buffer, '\n');
+	temp.setSemester(stoi(buffer));
+	gotoXY(22, 15);
+	date date_temp;
+	cout << "Start Date (format dd/mm/yyyy)";
+	gotoXY(57, 15);
+	getline(cin, buffer, '/');
+	date_temp.day = stoi(buffer);
+	getline(cin, buffer, '/');
+	date_temp.month = stoi(buffer);
+	getline(cin, buffer, '\n');
+	date_temp.year = stoi(buffer);
+	temp.setStartDate(date_temp);
+	gotoXY(22, 17);
+	cout << "End Date (format dd/mm/yyyy)";
+	gotoXY(57, 17);
+	getline(cin, buffer, '/');
+	date_temp.day = stoi(buffer);
+	getline(cin, buffer, '/');
+	date_temp.month = stoi(buffer);
+	getline(cin, buffer, '\n');
+	date_temp.year = stoi(buffer);
+	temp.setEndDate(date_temp);
+	gotoXY(22, 19);
+	time time_temp;
+	cout << "Course Start Time (format hh:mm)";
+	gotoXY(57, 19);
+	getline(cin, buffer, ':');
+	time_temp.hour = stoi(buffer);
+	getline(cin, buffer, '\n');
+	time_temp.minute = stoi(buffer);
+	temp.setStartTime(time_temp);
+	gotoXY(22, 21);
+	cout << "Course End Time (format hh:mm)";
+	gotoXY(57, 21);
+	getline(cin, buffer, ':');
+	time_temp.hour = stoi(buffer);
+	getline(cin, buffer, '\n');
+	time_temp.minute = stoi(buffer);
+	temp.setEndTime(time_temp);
+	gotoXY(22, 23);
+	cout << "Course DoW:";
+	gotoXY(57, 23);
+	getline(cin, buffer, '\n');
+	temp.setDoW(stoi(buffer));
+	list.push_back(temp);
+}
+
+void remove_course(vector<Course>& list) {
+	cout << "Input Course ID to remove: ";
+	string buffer;
+	getline(cin, buffer, '\n');
+
+	bool remove_flag = false;
+	for (int i = 0; i < list.size(); ++i) {
+		if (list[i].getCourseCode() == buffer) {
+			list.erase(list.begin() + i);
+			remove_flag = true;
+			break;
+		}
+	}
+	if (!remove_flag) {
+		cerr << "This Course is not existed" << endl;
+	}
+}
+
+vector<string> read_directory() {
+	vector<string> list;
+	string search_path = ".\\Classes\\*.*";
+	WIN32_FIND_DATA fd;
+	string temp;
+	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				temp = fd.cFileName;
+				temp.pop_back();
+				temp.pop_back();
+				temp.pop_back();
+				temp.pop_back();
+				list.push_back(temp);
+			}
+		} while (::FindNextFile(hFind, &fd));
+		::FindClose(hFind);
+	}
+	return list;
+}
+
+//check if c2 is collided with c1
+bool isCollied(Course &c1, Course &c2) {
+	if (c1.getLecUsername() == c2.getLecUsername()) {
+		if (c1.getDoW() == c2.getDoW()) {
+			if (collidedDate(c1.getStartDate(), c2.getStartDate(), c1.getEndDate(), c2.getEndDate())) {
+				if (collidedTime(c1.getStartTime(), c2.getStartTime(), c1.getEndTime(), c2.getEndTime())) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void import_scoreboard(string course, Scoreboard &list) {
+	ifstream fi(".\\Scores\\" + course + ".csv");
+	if (!fi) {
+		cerr << "Course Scoreboard not exit" << endl;
+		return;
+	}
+	string buffer;
+
+	list.Course_code = course;
+	getline(fi, buffer, ',');
+	list.semester = stoi(buffer);
+	getline(fi, buffer, ',');
+	list.year = stoi(buffer);
+	getline(fi, buffer, '\n');
+	buffer.clear();
+	list.data.clear();
+
+	string ID;
+	getline(fi, buffer, '\n');
+	buffer.clear();
+	score_list temp;
+	while (!fi.eof()) {
+		getline(fi, ID, ',');
+		if (ID == "") break;
+		getline(fi, buffer, ',');
+		temp.midterm = stod(buffer);
+		getline(fi, buffer, ',');
+		temp.lab = stod(buffer);
+		getline(fi, buffer, '\n');
+		temp.final = stod(buffer);
+		Score score(ID, temp);
+		list.data.push_back(score);
+	}
+	fi.close();
+}
+
+void export_scoreboard(Scoreboard &list) {
+	ofstream fo(".\\Scores\\" + list.Course_code + ".csv");
+	if (!fo) {
+		cerr << "cant write to/create course's score file" << endl;
+		return;
+	}
+	fo << list.semester << " " << list.year << ",," << endl << "ID,Midterm,Lab,Final" << endl;
+	for (auto it = list.data.begin(); it != list.data.end(); ++it) {
+		fo << it->ID << "," << it->score.midterm << "," << it->score.lab << "," << it->score.final << endl;
+	}
+	fo.close();
+}
+
+void import_attendance(string course, Attendance &list) 
+{
+	ifstream fi(".\\Attendance\\" + course + ".csv");
+	if (!fi)
+	{
+		cerr << "Course not found" << endl;
+		return;
+	}
+	string buffer, name, ID;
+	list.Course_code = course;
+	bool data[10];
+	getline(fi, buffer, '\n');
+	while (!fi.eof()) 
+	{
+		getline(fi, ID, ',');
+		getline(fi, name, ',');
+		for (int i = 0; i < 10; ++i) 
+		{
+			if (i == 9) getline(fi, buffer, '\n');
+			else getline(fi, buffer, ',');
+			data[i] = buffer == "V" ? true : false;
+		}
+		Presence temp(ID, name, data);
+		list.attendance_list.push_back(temp);
+	}
+	list.attendance_list.pop_back();
+}
+
+void export_attendance(Attendance &list) {
+	ofstream fo(".\\Attendance\\" + list.Course_code + ".csv");
+	if (!fo) {
+		cerr << "Error loading file" << endl;
+		return;
+	}
+	fo << "ID,Name,1,2,3,4,5,6,7,8,9,10" << endl;
+	for (auto&& i : list.attendance_list) {
+		fo << i.ID << "," << i.name << ",";
+		for (int j = 0; j < 10; ++j) {
+			char out = i.check_in[j] ? 'V' : 'A';
+			if (j == 9) fo << out << endl;
+			else fo << out << ",";
+		}
+	}
 }
