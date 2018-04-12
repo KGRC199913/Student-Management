@@ -146,7 +146,7 @@ void print_student_list(string Class) {
 		getline(ClassFile, buffer, '\n');
 		buffer.clear();
 	}
-
+	ClassFile.close();
 }
 
 void change_class(vector<User>& list) {
@@ -239,7 +239,7 @@ void import_course(string path, vector<Course>& list) {
 	buffer.clear();
 
 	date date_temp;
-	time time_temp;
+	ttime time_temp;
 	Course course_temp;
 	while (!fi.eof()) {
 		getline(fi, buffer, ',');
@@ -353,7 +353,7 @@ void add_new_course(vector<Course>& list) {
 	date_temp.year = stoi(buffer);
 	temp.setEndDate(date_temp);
 
-	time time_temp;
+	ttime time_temp;
 	cout << "Course Start Time (format hh:mm): ";
 	getline(cin, buffer, ':');
 	time_temp.hour = stoi(buffer);

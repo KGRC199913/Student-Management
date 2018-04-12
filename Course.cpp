@@ -4,7 +4,7 @@ Course::Course() {
 
 }
 
-Course::Course(string code, string year, unsigned int semester, string name, string lec_username, date st_date, date ed_date, time st_time, time ed_time, int day) {
+Course::Course(string code, string year, unsigned int semester, string name, string lec_username, date st_date, date ed_date, ttime st_time, ttime ed_time, int day) {
 	this->Course_code = code;
 	this->year = year;
 	this->semester = semester;
@@ -53,11 +53,11 @@ void Course::setEndDate(date end) {
 	this->end_date = end;
 }
 
-void Course::setStartTime(time start) {
+void Course::setStartTime(ttime start) {
 	this->start_time = start;
 }
 
-void Course::setEndTime(time end) {
+void Course::setEndTime(ttime end) {
 	this->end_time = end;
 }
 
@@ -93,11 +93,11 @@ date Course::getEndDate() {
 	return this->end_date;
 }
 
-time Course::getStartTime() {
+ttime Course::getStartTime() {
 	return this->start_time;
 }
 
-time Course::getEndTime() {
+ttime Course::getEndTime() {
 	return this->end_time;
 }
 
@@ -122,7 +122,7 @@ bool collidedDate(date sd1, date sd2, date ed1, date ed2) {
 	return false;
 }
 
-bool collidedTime(time st1, time st2, time et1, time et2) {
+bool collidedTime(ttime st1, ttime st2, ttime et1, ttime et2) {
 	if (((st2.hour <= et1.hour) && (st2.hour >= st1.hour)) ||
 		((et2.hour <= et1.hour) && (et2.hour >= st1.hour)) ||
 		((st2.hour < st1.hour) && (et2.hour > et1.hour))) {

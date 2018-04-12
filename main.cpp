@@ -13,9 +13,7 @@
 using namespace std;
 
 int main() {
-	Attendance temp;
-	import_attendance("CTT008 (3)", temp);
-	temp.Course_code = "test";
-	export_attendance(temp);
+	User* cur_user = nullptr;
+	login(cur_user);
 	return 0;
 }

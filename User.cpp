@@ -1,6 +1,10 @@
-﻿#include <iostream>
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
 #include <cctype>
+#include <ctime>
 #include "User.h"
+#include "Presence.h"
+#include "Academic_staff_features.h"
 
 using namespace std;
 
@@ -107,6 +111,9 @@ bool User::checkLegitPassword(string newPass_same) {
 	}
 }
 
+void User::setUsername(string newUsername) {
+	this->username = newUsername;
+}
 
 void User::setPassword(string newPass) {
 	this->password = newPass;
@@ -124,4 +131,27 @@ void User::setClass(string newClass) {
 
 string User::getPassword() {
 	return this->password;
+}
+
+bool User::check_in(string course_code, vector<Course> &course_list) {
+	for (auto i : course_list) {
+		if (i.getCourseCode() == course_code) {
+			time_t current_time = time(nullptr);
+			tm* timePtr = localtime(&current_time);
+			if (timePtr->tm_wday == (i.getDoW() - 1)) {
+				Attendance temp;
+				import_attendance("CTT008 (3)", temp);
+				for (auto j : temp.attendance_list) {
+					if (j.ID == this->username) {
+						if (((timePtr->tm_mon + 1) - i.getStartDate().month) < 0) return false;
+						int cur_week = ((timePtr->tm_mon + 1) - i.getStartDate().month) * 4 + (i.getStartDate().day / 7);
+						if (cur_week > 10) cur_week = 10;
+						j.check_in[cur_week - 1] = true;
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
