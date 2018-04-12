@@ -154,6 +154,8 @@ void resetPassword(User* user) {
 	}
 	loginDat.close();
 	temp_new_login.close();
+	remove("loginDat.csv");
+	rename("loginDat.csv.tmp", "loginDat.csv");
 }
 
 bool fexist(const std::string& name) {
