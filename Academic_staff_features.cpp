@@ -499,7 +499,6 @@ void import_attendance(string course, Attendance &list) {
 		Presence temp(ID, name, data);
 		list.attendance_list.push_back(temp);
 	}
-	list.attendance_list.pop_back();
 }
 
 void export_attendance(Attendance &list) {
