@@ -134,24 +134,27 @@ string User::getPassword() {
 }
 
 bool User::check_in(string course_code, vector<Course> &course_list) {
+	bool success = false;
 	for (auto i : course_list) {
 		if (i.getCourseCode() == course_code) {
 			time_t current_time = time(nullptr);
 			tm* timePtr = localtime(&current_time);
 			if (timePtr->tm_wday == (i.getDoW() - 1)) {
 				Attendance temp;
-				import_attendance("CTT008 (3)", temp);
-				for (auto j : temp.attendance_list) {
+				import_attendance(course_code, temp);
+				for (auto& j : temp.attendance_list) {
 					if (j.ID == this->username) {
 						if (((timePtr->tm_mon + 1) - i.getStartDate().month) < 0) return false;
 						int cur_week = ((timePtr->tm_mon + 1) - i.getStartDate().month) * 4 + (i.getStartDate().day / 7);
 						if (cur_week > 10) cur_week = 10;
 						j.check_in[cur_week - 1] = true;
-						return true;
+						success = true;
+						break;
 					}
 				}
+				export_attendance(temp);
 			}
 		}
 	}
-	return false;
+	return success;
 }
