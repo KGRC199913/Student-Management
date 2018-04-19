@@ -15,7 +15,6 @@
 #define TEXTCOLOR 48
 #define BGCOLOR 55
 using namespace std;
-enum STATE { UP, DOWN, LEFT, RIGHT, ENTER, BACK };
 //ham xac dinh phim bam va dieu khien menu
 STATE key(int z)
 {
@@ -116,7 +115,7 @@ int menu(int n)
 			if (st == 0)
 				return st;
 			if (st == 1)
-				menucourse(5);
+				menucourse(6);
 			if (st == n - 1)
 			{
 				exit(0);
@@ -201,13 +200,18 @@ void addcourseframe(int x,int y, int z,int v, int j,int k,int m)
 }
 int menucourse(int n)
 {
+	int menucourse(int n)
+{
 	int st = 0;//Bien chi dang o thao tac thu nhat
 	typedef char str[30];
-	str menu1[5] = { "ADD NEW COURSE","EDIT COURSE","REMOVE COURSE","VIEW COURSE","BACK"};
+	str menu1[6]= {"IMPORT COURSE","ADD NEW COURSE","EDIT COURSE","REMOVE COURSE","VIEW COURSE","BACK"};
 	int *color = new int[n];
 	for (int i = 0; i < n; i++)
 		color[i] = TEXTCOLOR;
 	color[0] = BGCOLOR;//thao tac thu nhat
+	vector<Course> temp;
+	import_course("Course.csv", temp);
+	system("cls");
 	while (true)
 	{
 		clrscr();
@@ -230,7 +234,7 @@ int menucourse(int n)
 		{
 			TextColor(color[i]);
 			cout << "\n\n" << endl;
-			cout << "\t\t\t\t\t\t\t" << i + 1 << "." << menu1[i] << endl;
+			cout << "\t\t\t\t\t\t    " << i + 1 << "." << menu1[i] << endl;
 		}
 		TextColor(color[n-1]);
 		gotoXY(4, 23);
@@ -280,21 +284,39 @@ int menucourse(int n)
 		case ENTER:
 			if (st == 0)
 			{
-				vector<Course> add;
-				add_new_course(add);
+				system("cls");
+				frame();
+				string x;
+				gotoXY(45, 13);
+				cout << "Enter path:";
+				getline(cin, x, '\n');
+				system("cls");
+				import_course(x, temp);
 			}
 			if (st == 1)
 			{
-				menueditcourse(11);
+				add_new_course(temp);
+				system("cls");
+				frame();
+				string x;
+				gotoXY(45, 13);
+				cout << "Enter course path:";
+				getline(cin, x, '\n');
+				print_course_list_to_file(x, temp);
+				system("cls");
 			}
 			if (st == 2)
 			{
-				vector<Course> remove;
-				remove_course(remove);
+				menueditcourse(11);
+			}
+			if (st == 3)
+			{
+				remove_course(temp);
+				print_course_list_to_file("Course.temp.csv", temp);
 			}
 			if (st == n - 1)
 			{
-				menu(5);
+				menu(6);
 			}
 		}
 		for (int i = 0; i < n; i++)
@@ -304,11 +326,16 @@ int menucourse(int n)
 	}
 	delete[]color;
 }
+}
 int menueditcourse(int n)
 {
 	int st = 0;//Bien chi dang o thao tac thu nhat
 	typedef char str[30];
 	Course code;
+	vector<Course> temp;
+	string y;
+	cout << "Enter course code" << endl;
+	getline(cin, y, '\n');
 	str menu1[11] = {"COURSE CODE","YEAR","SEMESTER","NAME","LECTURE NAME","START DATE","END DATE","START TIME","END TIME","DOW","BACK"};
 	int *color = new int[n];
 	for (int i = 0; i < n; i++)
@@ -396,6 +423,7 @@ int menueditcourse(int n)
 				gotoXY(60, 10);
 				getline(cin, x, '\n');
 				code.setCourseCode(x);
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 1)
@@ -408,6 +436,7 @@ int menueditcourse(int n)
 				gotoXY(60, 10);
 				getline(cin, year, '\n');
 				code.setYear(year);
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 2)
@@ -420,6 +449,7 @@ int menueditcourse(int n)
 				gotoXY(65, 10);
 				getline(cin, semester, '\n');
 				code.setSemester(stoi(semester));
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 3)
@@ -432,6 +462,7 @@ int menueditcourse(int n)
 				gotoXY(70, 10);
 				getline(cin, name, '\n');
 				code.setName(name);
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 4)
@@ -444,6 +475,7 @@ int menueditcourse(int n)
 				gotoXY(78, 10);
 				getline(cin, lname, '\n');
 				code.setName(lname);
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 5)
@@ -462,6 +494,7 @@ int menueditcourse(int n)
 				getline(cin, sdate, '\n');
 				stdate.year = stoi(sdate);
 				code.setStartDate(stdate);
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 6)
@@ -480,12 +513,13 @@ int menueditcourse(int n)
 				getline(cin, edate, '\n');
 				endate.year = stoi(edate);
 				code.setStartDate(endate);
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 7)
 			{
 				system("cls");
-				time sttime;
+				ttime sttime;
 				string stime;
 				frame();
 				gotoXY(30, 10);
@@ -496,12 +530,13 @@ int menueditcourse(int n)
 				getline(cin, stime, '\n');
 				sttime.minute = stoi(stime);
 				code.setStartTime(sttime);
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 8)
 			{
 				system("cls");
-				time entime;
+				ttime entime;
 				string etime;
 				frame();
 				gotoXY(30, 10);
@@ -512,6 +547,7 @@ int menueditcourse(int n)
 				getline(cin, etime, '\n');
 				entime.minute = stoi(etime);
 				code.setStartTime(entime);
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == 9)
@@ -524,11 +560,12 @@ int menueditcourse(int n)
 				gotoXY(60, 10);
 				getline(cin, dow, '\n');
 				code.setDoW(stoi(dow));
+				print_course_list_to_file("Course.temp.csv", temp);
 				system("cls");
 			}
 			if (st == n - 1)
 			{
-				menucourse(5);
+				menucourse(6);
 			}
 		}
 		for (int i = 0; i < n; i++)
