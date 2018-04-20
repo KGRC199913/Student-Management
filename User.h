@@ -1,5 +1,7 @@
 #pragma once
+#include "Course.h"
 #include <string>
+#include <vector>
 
 using namespace std;
 class User
@@ -17,14 +19,14 @@ public:
 	User(string name, string phone, char type);
 	User();
 	int printinfo();
-	
+
 	bool checkLegitPassword(string newPass_same);
-	
+
+	void setUsername(string newUsername);
 	void setName(string newName);
 	void setPhone(string newPhone);
 	void setClass(string newClass);
 	void setPassword(string newPass);
-	
 
 	string getUsername();
 	string getFullName();
@@ -32,6 +34,7 @@ public:
 	string getMobilePhone();
 	string getPassword();
 	string getClass();
+	unsigned char getType() { return this->type; };
+	bool check_in(string course_code, vector<Course> &course_list);
 	~User();
 };
-

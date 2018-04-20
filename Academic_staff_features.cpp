@@ -51,24 +51,50 @@ void append_new_student_info(User user, vector<User>& list) {
 
 
 void add_new_student(vector<User>& list) {
+	system("cls");
+	gotoXY(45, 0);
+	for (int i = 0; i < 20; i++)
+	{
+		TextColor(55);
+		printf("%c", 205);
+	}
+	TextColor(48);
+	gotoXY(48, 1);
+	cout << "Add new student" << endl;
+	gotoXY(45, 2);
+	for (int i = 0; i < 20; i++)
+	{
+		TextColor(55);
+		printf("%c", 205);
+	}
+	addstframe(20, 5, 60, 10, 6, 6, 6);
 	string ID, fname, phone, Class;
+	gotoXY(22, 7);
 	cout << "ID: ";
+	gotoXY(37, 7);
 	getline(cin, ID, '\n');
+	gotoXY(22, 9);
 	cout << "Full Name: ";
+	gotoXY(37, 9);
 	getline(cin, fname, '\n');
+	gotoXY(22, 11);
 	cout << "Phone: ";
+	gotoXY(37, 11);
 	getline(cin, phone, '\n');
 
+	gotoXY(22, 13);
 	cout << "Class: ";
+	gotoXY(37, 13);
 	getline(cin, Class, '\n');
 	if (!fexist(Class + ".csv")) {
+		gotoXY(25, 3);
 		cerr << "This class is not exist yet, please add this class first" << endl;
+		Sleep(1000);
 		return;
 	}
 
 	User temp(ID, fname, phone, Class);
 	list.push_back(temp);
-
 	append_new_student_info(temp, list);
 }
 
@@ -236,19 +262,14 @@ void import_course(string path, vector<Course>& list) {
 	ifstream fi(path, ios::in);
 	string buffer;
 	system("cls");
-	frame();
-	addcourseframe(20, 3, 60, 17, 4, 4, 4);
-	gotoXY(22, 5);
 	getline(fi, buffer, '\n');
-	gotoXY(22, 7);
 	getline(fi, buffer, '\n');
 	buffer.clear();
 
 	date date_temp;
-	time time_temp;
+	ttime time_temp;
 	Course course_temp;
 	while (!fi.eof()) {
-		gotoXY(22, 9);
 		getline(fi, buffer, ',');
 		course_temp.setCourseCode(buffer);
 		getline(fi, buffer, ',');
@@ -259,7 +280,7 @@ void import_course(string path, vector<Course>& list) {
 		course_temp.setYear(buffer);
 		getline(fi, buffer, ',');
 		course_temp.setSemester(stoi(buffer));
-		gotoXY(22, 11);
+
 		getline(fi, buffer, '/');
 		date_temp.day = stoi(buffer);
 		getline(fi, buffer, '/');
@@ -267,8 +288,7 @@ void import_course(string path, vector<Course>& list) {
 		getline(fi, buffer, ',');
 		date_temp.year = stoi(buffer);
 		course_temp.setStartDate(date_temp);
-		
-		gotoXY(22, 13);
+
 		getline(fi, buffer, '/');
 		date_temp.day = stoi(buffer);
 		getline(fi, buffer, '/');
@@ -277,27 +297,23 @@ void import_course(string path, vector<Course>& list) {
 		date_temp.year = stoi(buffer);
 		course_temp.setEndDate(date_temp);
 
-		gotoXY(22, 15);
 		getline(fi, buffer, 'h');
 		time_temp.hour = stoi(buffer);
 		getline(fi, buffer, ',');
 		time_temp.minute = stoi(buffer);
 		course_temp.setStartTime(time_temp);
 
-		gotoXY(22, 17);
 		getline(fi, buffer, 'h');
 		time_temp.hour = stoi(buffer);
 		getline(fi, buffer, ',');
 		time_temp.minute = stoi(buffer);
 		course_temp.setEndTime(time_temp);
 
-		gotoXY(22, 19);
 		getline(fi, buffer, '\n');
 		course_temp.setDoW(stoi(buffer));
 
 		list.push_back(course_temp);
 	}
-
 	fi.close();
 }
 
@@ -311,10 +327,8 @@ void print_course_list_to_file(string path, vector<Course>& list) {
 			<< list[i].getStartDate().year << "," << list[i].getEndDate().day << "/" << list[i].getEndDate().month << "/" << list[i].getEndDate().year << ","
 			<< list[i].getStartTime().hour << "h" << list[i].getStartTime().minute << "," << list[i].getEndTime().hour << "h" << list[i].getEndTime().minute << "," << list[i].getDoW() << endl;
 	}
-
 	fo.close();
 }
-
 void add_new_course(vector<Course>& list) {
 	system("cls");
 	gotoXY(45, 0);
@@ -391,7 +405,7 @@ void add_new_course(vector<Course>& list) {
 	date_temp.year = stoi(buffer);
 	temp.setEndDate(date_temp);
 	gotoXY(22, 19);
-	time time_temp;
+	ttime time_temp;
 	cout << "Course Start Time (format hh:mm)";
 	gotoXY(57, 19);
 	getline(cin, buffer, ':');
@@ -497,8 +511,10 @@ void import_scoreboard(string course, Scoreboard &list) {
 		temp.midterm = stod(buffer);
 		getline(fi, buffer, ',');
 		temp.lab = stod(buffer);
-		getline(fi, buffer, '\n');
+		getline(fi, buffer, ',');
 		temp.final = stod(buffer);
+		getline(fi, buffer, '\n');
+		temp.bonus = stod(buffer);
 		Score score(ID, temp);
 		list.data.push_back(score);
 	}
@@ -511,9 +527,9 @@ void export_scoreboard(Scoreboard &list) {
 		cerr << "cant write to/create course's score file" << endl;
 		return;
 	}
-	fo << list.semester << " " << list.year << ",," << endl << "ID,Midterm,Lab,Final" << endl;
+	fo << list.semester << " " << list.year << ",," << endl << "ID,Midterm,Lab,Final,Bonus" << endl;
 	for (auto it = list.data.begin(); it != list.data.end(); ++it) {
-		fo << it->ID << "," << it->score.midterm << "," << it->score.lab << "," << it->score.final << endl;
+		fo << it->ID << "," << it->score.midterm << "," << it->score.lab << "," << it->score.final<<it->score.bonus << endl;
 	}
 	fo.close();
 }
