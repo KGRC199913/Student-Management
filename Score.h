@@ -6,7 +6,7 @@
 using namespace std;
 
 struct score_list {
-	double midterm, lab, final;
+	double midterm, lab, final,bonus;
 };
 class Score
 {
