@@ -200,8 +200,6 @@ void addcourseframe(int x,int y, int z,int v, int j,int k,int m)
 }
 int menucourse(int n)
 {
-	int menucourse(int n)
-{
 	int st = 0;//Bien chi dang o thao tac thu nhat
 	typedef char str[30];
 	str menu1[6]= {"IMPORT COURSE","ADD NEW COURSE","EDIT COURSE","REMOVE COURSE","VIEW COURSE","BACK"};
@@ -210,7 +208,6 @@ int menucourse(int n)
 		color[i] = TEXTCOLOR;
 	color[0] = BGCOLOR;//thao tac thu nhat
 	vector<Course> temp;
-	import_course("Course.csv", temp);
 	system("cls");
 	while (true)
 	{
@@ -324,8 +321,7 @@ int menucourse(int n)
 		color[st] = BGCOLOR;
 
 	}
-	delete[]color;
-}
+	delete color;
 }
 int menueditcourse(int n)
 {
@@ -334,8 +330,13 @@ int menueditcourse(int n)
 	Course code;
 	vector<Course> temp;
 	string y;
-	cout << "Enter course code" << endl;
+	system("cls");
+	frame();
+	gotoXY(45, 13);
+	cout << "Enter course code:";
 	getline(cin, y, '\n');
+	import_course("Course.csv",temp);
+	system("cls");
 	str menu1[11] = {"COURSE CODE","YEAR","SEMESTER","NAME","LECTURE NAME","START DATE","END DATE","START TIME","END TIME","DOW","BACK"};
 	int *color = new int[n];
 	for (int i = 0; i < n; i++)
@@ -573,5 +574,5 @@ int menueditcourse(int n)
 		color[st] = BGCOLOR;
 
 	}
-	delete[]color;
+	delete color;
 }
